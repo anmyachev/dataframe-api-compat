@@ -3,8 +3,9 @@ from __future__ import annotations
 import pytest
 from packaging.version import Version
 
-from tests.utils import PANDAS_VERSION
+from tests.utils import BaseHandler
 from tests.utils import mixed_dataframe_1
+from tests.utils import pandas_version
 
 
 @pytest.mark.parametrize(
@@ -20,11 +21,11 @@ from tests.utils import mixed_dataframe_1
         (("string", "unsigned integer"), ["e", "f", "g", "h", "l"]),
     ],
 )
-@pytest.mark.skipif(
-    Version("2.0.0") > PANDAS_VERSION,
-    reason="before pandas got non-nano support",
-)
-def test_is_dtype(library: str, dtype: str, expected: list[str]) -> None:
+def test_is_dtype(library: BaseHandler, dtype: str, expected: list[str]) -> None:
+    if library.name in ("pandas-numpy", "pandas-nullable") and pandas_version() < Version(
+        "2.0.0",
+    ):  # pragma: no cover
+        pytest.skip(reason="pandas before non-nano")
     df = mixed_dataframe_1(library).persist()
     namespace = df.__dataframe_namespace__()
     result = [i for i in df.column_names if namespace.is_dtype(df.schema[i], dtype)]

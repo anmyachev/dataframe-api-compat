@@ -1,7 +1,5 @@
 covdefaults
-pandas
-polars<0.20.8
+modin[ray]
 pre-commit
-pyarrow
 pytest
 pytest-cov
